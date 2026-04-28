@@ -1,0 +1,528 @@
+/* ─── Design Tokens ──────────────────────────────────────────────────────── */
+:root {
+    --bg:          #f3efe5;
+    --surface:     #fffaf0;
+    --surface-alt: #f2e8d0;
+    --border:      #beab91;
+    --primary:     #7f4f2b;       
+    --primary-dk:  #593521;
+    --accent:      #b47d3f;       
+    --green:       #4f6b3c;
+    --red:         #9b3b30;
+    --text:        #3e2f23;
+    --muted:       #7c6a5a;
+    --radius-sm:   0.375rem;
+    --radius-md:   0.75rem;
+    --radius-lg:   1.25rem;
+    --shadow:      0 12px 40px rgba(72,56,40,0.12);
+}
+
+/* ─── Reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+    margin: 0; padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', system-ui, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 1140px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+header {
+    background: rgba(255, 250, 240, 0.95);
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+}
+
+.header-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.brand-icon {
+    font-size: 1.75rem;
+    line-height: 1;
+}
+
+h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(248, 81, 73, 0.15);
+    border: 1px solid var(--red);
+    color: var(--red);
+    -webkit-text-fill-color: var(--red);
+}
+
+.tagline {
+    font-size: 0.88rem;
+    color: var(--muted);
+    padding-left: 2.5rem;
+}
+
+/* ─── Info Banner ────────────────────────────────────────────────────────── */
+.info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: rgba(180, 124, 63, 0.08);
+    border: 1px solid rgba(180, 124, 63, 0.22);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 1.2rem;
+    margin: 2rem 0 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.info-icon { font-size: 1.1rem; margin-top: 0.05rem; flex-shrink: 0; }
+
+.info-banner code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    color: var(--primary);
+    background: rgba(247, 129, 102, 0.12);
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-sm);
+}
+
+/* ─── Glass Card ─────────────────────────────────────────────────────────── */
+.glass-card {
+    background: rgba(255, 250, 240, 0.95);
+    border: 1px solid rgba(190, 171, 145, 0.8);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+/* ─── Search Panel ───────────────────────────────────────────────────────── */
+.search-panel { margin-bottom: 2rem; }
+
+h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+
+.subtitle {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.control-group label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+}
+
+.flex-1 { flex: 1 1 220px; }
+
+.input-field {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.65rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+}
+
+.input-field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.18);
+}
+
+select.input-field { cursor: pointer; }
+
+.divider-v {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+    margin-block: 0.5rem;
+}
+
+/* ─── Search Button ──────────────────────────────────────────────────────── */
+.search-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dk));
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    align-self: flex-end;
+    white-space: nowrap;
+}
+
+.search-btn:hover  { opacity: 0.88; }
+.search-btn:active { transform: scale(0.97); }
+
+/* ─── SQL Visualiser ─────────────────────────────────────────────────────── */
+.sql-box {
+    background: var(--surface-alt);
+    border: 1px solid rgba(190, 171, 145, 0.7);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    position: relative;
+}
+
+.sql-box-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+}
+
+.sql-code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.95rem;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.kw  { color: #ff7b72; font-weight: 600; }   /* SQL keywords   */
+.val { color: #a5d6ff; }                      /* injected value */
+
+/* ─── Payload Chips ─────────────────────────────────────────────────────── */
+.payloads-section {
+    margin-bottom: 1.25rem;
+}
+
+.payloads-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+}
+
+.payloads-hint {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.75rem;
+}
+
+.payload-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.payload-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(180, 124, 63, 0.08);
+    border: 1px solid rgba(180, 124, 63, 0.25);
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+}
+
+.payload-chip:hover {
+    background: rgba(180, 124, 63, 0.15);
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.payload-chip:active { transform: scale(0.97); }
+
+.payload-chip.copied {
+    border-color: var(--green);
+    background: rgba(63, 185, 80, 0.1);
+}
+
+.chip-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    width: 18px; height: 18px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+.payload-chip.copied .chip-tag { background: var(--green); }
+
+.chip-code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.82rem;
+    color: var(--primary);
+    transition: color 0.15s;
+}
+
+.payload-chip.copied .chip-code { color: var(--green); }
+
+.chip-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    border-left: 1px solid var(--border);
+    padding-left: 0.5rem;
+    white-space: nowrap;
+}
+
+.chip-copy {
+    color: var(--muted);
+    margin-left: auto;
+    padding-left: 0.4rem;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+}
+
+.payload-chip:hover .chip-copy { color: var(--primary); }
+.payload-chip.copied .chip-copy { color: var(--green); }
+
+/* ─── Results ────────────────────────────────────────────────────────────── */
+.results-section { margin-bottom: 3rem; }
+
+/* Loader */
+.loader {
+    width: 38px; height: 38px;
+    border: 3px solid rgba(247, 129, 102, 0.25);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 3rem auto;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Error box */
+.error-box {
+    background: rgba(248, 81, 73, 0.08);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.error-header {
+    background: rgba(248, 81, 73, 0.12);
+    padding: 0.6rem 1rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--red);
+    border-bottom: 1px solid rgba(248, 81, 73, 0.2);
+}
+
+.error-box p {
+    padding: 0.75rem 1rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+}
+
+/* Book grid */
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 1.25rem;
+}
+
+/* Book card */
+.book-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.book-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--primary) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: 0 12px 28px -8px rgba(247, 129, 102, 0.25);
+}
+
+.book-card:hover::before { opacity: 0.05; }
+
+/* Restricted card variant */
+.book-card.restricted {
+    border-color: var(--red);
+    background: rgba(248, 81, 73, 0.04);
+}
+
+.book-card.restricted::before {
+    background: linear-gradient(135deg, var(--red) 0%, transparent 60%);
+}
+
+.book-card.restricted:hover {
+    border-color: var(--red);
+    box-shadow: 0 12px 28px -8px rgba(248, 81, 73, 0.3);
+}
+
+/* Card elements */
+.book-id {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.book-spine {
+    width: 3px;
+    height: 100%;
+    position: absolute;
+    left: 0; top: 0;
+    background: var(--primary);
+    border-radius: 0 2px 2px 0;
+}
+
+.book-card.restricted .book-spine { background: var(--red); }
+
+.book-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.book-author {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-style: italic;
+}
+
+.book-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+}
+
+.book-price {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--green);
+}
+
+.book-genre {
+    font-size: 0.75rem;
+    padding: 0.22rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    color: var(--text);
+}
+
+.book-card.restricted .book-genre {
+    background: rgba(248, 81, 73, 0.15);
+    color: var(--red);
+}
+
+.book-stock {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+/* ─── Utility ────────────────────────────────────────────────────────────── */
+.hidden { display: none !important; }
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+footer {
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+    padding: 1.2rem 0;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 680px) {
+    .controls { flex-direction: column; align-items: stretch; }
+    .divider-v { display: none; }
+    .search-btn { width: 100%; justify-content: center; }
+}
