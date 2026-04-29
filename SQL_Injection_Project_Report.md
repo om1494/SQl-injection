@@ -6,7 +6,7 @@
 
 SQL Injection (SQLi) is one of the most prevalent and dangerous vulnerabilities in modern web applications. Despite decades of awareness, it consistently ranks at the top of the OWASP Top 10 list of critical web application security risks. This project presents a hands-on, educational mini-application designed to demonstrate how SQL Injection vulnerabilities arise, how they can be exploited, and why proper mitigation is essential.
 
-The application simulates a realistic book-catalogue browsing scenario — named **StoryShelf** — where an attacker can manipulate a database query through unsanitized user input, ultimately exposing data that is not intended for public access, including classified administrative records. The project is implemented using **Node.js**, **Express**, and **AlaSQL** (an in-memory SQL engine), and is intended strictly for educational and research purposes in a controlled, local environment.
+The application simulates a realistic electronics catalogue browsing scenario — named **CyberMart** — where an attacker can manipulate a database query through unsanitized user input, ultimately exposing data that is not intended for public access, including classified administrative records. The project is implemented using **Node.js**, **Express**, and **AlaSQL** (an in-memory SQL engine), and is intended strictly for educational and research purposes in a controlled, local environment.
 
 ---
 
@@ -19,7 +19,7 @@ The vulnerability exists because many web applications construct SQL queries by 
 ### Objectives of this Project
 
 1. Illustrate how SQL Injection vulnerabilities are introduced at the code level through improper string concatenation.
-2. Demonstrate three practical exploitation scenarios using distinct payload techniques to produce different outputs.
+2. Demonstrate two practical exploitation scenarios using distinct payload techniques to produce different outputs.
 3. Highlight the difference between the vulnerable implementation and the secure alternative (parameterized queries).
 4. Serve as an educational reference for students and developers learning about web application security.
 
@@ -55,57 +55,57 @@ The vulnerability exists because many web applications construct SQL queries by 
 
 ### 1. In-Memory Database Setup
 
-The application uses **AlaSQL** to simulate a relational database entirely in memory. Upon server startup, a `books` table is created with the following schema:
+The application uses **AlaSQL** to simulate a relational database entirely in memory. Upon server startup, a `products` table is created with the following schema:
 
 ```
-books (id INT, title STRING, author STRING, genre STRING, price DECIMAL, stock INT)
+products (id INT, name STRING, brand STRING, category STRING, price DECIMAL, stock INT)
 ```
 
-Fifteen book records are seeded into this table across five genres: `Technology`, `Self-Help`, `Fiction`, and `Science`. Two additional records exist in a `Restricted` genre:
+Thirteen product records are seeded into this table across four categories: `Laptops`, `Phones`, `Accessories`, and `Monitors`. Two additional records exist in a `Classified` category:
 
 ```
-(14, '[CLASSIFIED] Admin Credentials Handbook', 'System Admin', 'Restricted', 0.00, 1)
-(15, '[CLASSIFIED] Internal User Password List', 'DBA Team',    'Restricted', 0.00, 1)
+(14, '[CLASSIFIED] Admin Panel Credentials', 'Internal', 'Classified', 0.00, 1)
+(15, '[CLASSIFIED] Vendor API Keys', 'Internal', 'Classified', 0.00, 1)
 ```
 
-These restricted records represent sensitive data that should never be visible to a regular user — and are the primary targets of the SQL Injection attacks. They are never returned by a normal, legitimate genre filter because no UI option corresponds to the `Restricted` genre.
+These classified records represent sensitive data that should never be visible to a regular user — and are the primary targets of the SQL Injection attacks. They are never returned by a normal, legitimate category filter because no UI option corresponds to the `Classified` category.
 
 ---
 
 ### 2. The Vulnerable API Endpoint
 
-The core vulnerability lives in the `/api/books` GET endpoint in `index.js`. When the frontend sends a request, the server reads the `genre` query parameter directly from the URL and **concatenates it unsanitized** into a raw SQL string:
+The core vulnerability lives in the `/api/products` GET endpoint in `index.js`. When the frontend sends a request, the server reads the `category` query parameter directly from the URL and **concatenates it unsanitized** into a raw SQL string:
 
 ```javascript
-const genre = req.query.genre || '';
+const category = req.query.category || '';
 
 // VULNERABLE: Direct string concatenation — no sanitization, no parameterization
-const query = `SELECT * FROM books WHERE genre = '${genre}'`;
+const query = `SELECT * FROM products WHERE category = '${category}'`;
 
 const rows = alasql(query);
 res.json(rows);
 ```
 
 **Why this is dangerous:**  
-The `genre` variable is user-controlled. There is no validation, escaping, or use of parameterized queries. The `${genre}` template literal directly embeds whatever the user sends into the SQL string. This gives the attacker full control over the SQL query's logical structure.
+The `category` variable is user-controlled. There is no validation, escaping, or use of parameterized queries. The `${category}` template literal directly embeds whatever the user sends into the SQL string. This gives the attacker full control over the SQL query's logical structure.
 
 ---
 
-### 3. The Attacks — Three SQL Injection Payloads
+### 3. The Attacks — Two SQL Injection Payloads
 
 A normal request looks like this:
 
 ```
-GET /api/books?genre=Fiction
+GET /api/products?category=Laptops
 ```
 
 Which generates the safe query:
 
 ```sql
-SELECT * FROM books WHERE genre = 'Fiction'
+SELECT * FROM products WHERE category = 'Laptops'
 ```
 
-This project demonstrates three distinct injection techniques, each producing a different result:
+This project demonstrates two distinct injection techniques, each producing a different result:
 
 ---
 
@@ -114,77 +114,50 @@ This project demonstrates three distinct injection techniques, each producing a 
 An attacker sends:
 
 ```
-GET /api/books?genre=' OR '1'='1
+GET /api/products?category=' OR '1'='1
 ```
 
 Which causes the server to construct:
 
 ```sql
-SELECT * FROM books WHERE genre = '' OR '1'='1'
+SELECT * FROM products WHERE category = '' OR '1'='1'
 ```
 
 **Query Logic Breakdown:**
 
 | Clause | Evaluation |
 |---|---|
-| `genre = ''` | `FALSE` — no book has an empty genre |
+| `category = ''` | `FALSE` — no product has an empty category |
 | `OR '1'='1'` | `TRUE` — this is a tautology; always evaluates to true |
 | Combined result | `FALSE OR TRUE` = **`TRUE` for every row** |
 
-**Result:** All 15 books are returned, including both `[CLASSIFIED]` restricted records.
+**Result:** All 15 products are returned, including both `[CLASSIFIED]` restricted records.
 
 ---
 
-#### Payload 2 — Targeted Leak (`' OR genre='Restricted`)
+#### Payload 2 — Targeted Leak (`' OR category='Classified`)
 
 An attacker sends:
 
 ```
-GET /api/books?genre=' OR genre='Restricted
+GET /api/products?category=' OR category='Classified
 ```
 
 Which causes the server to construct:
 
 ```sql
-SELECT * FROM books WHERE genre = '' OR genre='Restricted'
+SELECT * FROM products WHERE category = '' OR category='Classified'
 ```
 
 **Query Logic Breakdown:**
 
 | Clause | Evaluation |
 |---|---|
-| `genre = ''` | `FALSE` — no book has an empty genre |
-| `OR genre='Restricted'` | `TRUE` only for restricted records |
-| Combined result | Returns **only the 2 classified books** |
+| `category = ''` | `FALSE` — no product has an empty category |
+| `OR category='Classified'` | `TRUE` only for classified records |
+| Combined result | Returns **only the 2 classified products** |
 
 **Result:** A precise, targeted leak — the attacker retrieves only the hidden records without exposing all other data. This is a more surgical attack compared to Payload 1.
-
----
-
-#### Payload 3 — Numeric Column Leak (`' OR stock < 10 AND '1'='1`)
-
-An attacker sends:
-
-```
-GET /api/books?genre=' OR stock < 10 AND '1'='1
-```
-
-Which causes the server to construct:
-
-```sql
-SELECT * FROM books WHERE genre = '' OR stock < 10 AND '1'='1'
-```
-
-**Query Logic Breakdown:**
-
-| Clause | Evaluation |
-|---|---|
-| `genre = ''` | `FALSE` — no book has an empty genre |
-| `OR stock < 10` | `TRUE` for any book with fewer than 10 units in stock |
-| `AND '1'='1'` | `TRUE` — absorbs the server's trailing closing quote |
-| Combined result | Returns books with **low stock**, which includes restricted items |
-
-**Result:** 3 books returned — *Design Patterns* (stock: 5) and both restricted records (stock: 1 each). The attacker did not need to know the `Restricted` genre name; probing a numeric column (`stock`) was sufficient to inadvertently expose the hidden data. The `AND '1'='1'` suffix is required to syntactically absorb the trailing `'` appended by the server's query template.
 
 ---
 
@@ -210,15 +183,15 @@ console.log(`[SQL Executed] ${query}`);
 
 ### 5. Frontend Request Flow (Logical)
 
-The frontend (`app.js`) sends the user's input to the backend API via `fetch`. Notably, it uses `encodeURIComponent()` on the genre string before embedding it in the URL:
+The frontend (`app.js`) sends the user's input to the backend API via `fetch`. Notably, it uses `encodeURIComponent()` on the category string before embedding it in the URL:
 
 ```javascript
-const res = await fetch(`/api/books?genre=${encodeURIComponent(genre)}`);
+const res = await fetch(`/api/products?category=${encodeURIComponent(category)}`);
 ```
 
 `encodeURIComponent` handles **URL encoding** (e.g., spaces → `%20`, `&` → `%26`) but does **not** prevent SQL Injection. The server still decodes the URL parameter back into its original string before concatenating it into the SQL query. This is a common misconception — URL encoding is not a security control against SQLi.
 
-The frontend also includes three **click-to-copy payload chips** that auto-fill the attack input, copy the payload to the clipboard, and execute the search immediately — making it easy to demonstrate each injection technique live.
+The frontend also includes two **click-to-copy payload chips** that auto-fill the attack input, copy the payload to the clipboard, and execute the search immediately — making it easy to demonstrate each injection technique live.
 
 ---
 
@@ -228,22 +201,22 @@ For comparison and learning, the correct, secure approach uses **parameterized q
 
 ```javascript
 // SECURE: User input is bound as a parameter, not concatenated
-const rows = alasql('SELECT * FROM books WHERE genre = ?', [genre]);
+const rows = alasql('SELECT * FROM products WHERE category = ?', [category]);
 ```
 
-With this approach, the database engine treats the `?` placeholder as a **data value only** — never as executable SQL syntax. Even if the user submits `' OR '1'='1`, it is interpreted as a literal string to compare against the `genre` column, not as SQL logic. The query would then return zero rows, as expected, completely neutralizing all three injection attempts demonstrated in this project.
+With this approach, the database engine treats the `?` placeholder as a **data value only** — never as executable SQL syntax. Even if the user submits `' OR '1'='1`, it is interpreted as a literal string to compare against the `category` column, not as SQL logic. The query would then return zero rows, as expected, completely neutralizing all injection attempts demonstrated in this project.
 
 ---
 
 ## Conclusion
 
-This project successfully demonstrates one of the most fundamental yet devastating web application vulnerabilities — SQL Injection. Through a deliberately vulnerable book search feature (**StoryShelf**), it illustrates how a single line of insecure code — a string concatenation in a database query — can expose an entire database to an attacker using multiple different techniques.
+This project successfully demonstrates one of the most fundamental yet devastating web application vulnerabilities — SQL Injection. Through a deliberately vulnerable electronics search feature (**CyberMart**), it illustrates how a single line of insecure code — a string concatenation in a database query — can expose an entire database to an attacker using multiple different techniques.
 
 Key takeaways from this project:
 
 - **Root Cause:** SQL Injection is caused by mixing **code** and **data** — embedding untrusted user input directly into SQL statements.
 - **Impact:** Even in this minimal simulation, the attacks leak classified records that normal users were never supposed to see. In real applications, this can mean leaking millions of user credentials, financial records, or personally identifiable information (PII).
-- **Multiple Techniques, Different Outputs:** The same underlying vulnerability can be exploited in different ways — a full dump, a targeted genre leak, and a numeric column probe all succeed via the same root cause but return different data subsets.
+- **Multiple Techniques, Different Outputs:** The same underlying vulnerability can be exploited in different ways — a full dump and a targeted category leak all succeed via the same root cause but return different data subsets.
 - **URL Encoding ≠ Security:** `encodeURIComponent` protects against URL-format issues but offers no protection against SQLi once the server decodes and uses the value.
 - **Verbose Errors Are Dangerous:** Returning raw SQL errors to the client is itself a vulnerability, as it aids attackers in crafting valid payloads.
 - **The Fix Is Simple:** Parameterized queries (prepared statements) completely eliminate SQLi by separating code from data. This should be the standard practice in every application that interacts with a database.
