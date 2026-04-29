@@ -2,33 +2,37 @@
     'use strict';
 
     // ── DOM refs ──────────────────────────────────────────────────────────────
-    const genreSelect = document.getElementById('genreSelect');
-    const customInput = document.getElementById('customInput');
-    const searchBtn   = document.getElementById('searchBtn');
-    const liveVal     = document.getElementById('liveVal');
-    const bookGrid    = document.getElementById('bookGrid');
-    const loader      = document.getElementById('loader');
-    const errorBox    = document.getElementById('errorBox');
-    const errorMsg    = document.getElementById('errorMsg');
+    const categorySelect = document.getElementById('categorySelect');
+    const customInput    = document.getElementById('customInput');
+    const searchBtn      = document.getElementById('searchBtn');
+    const liveVal        = document.getElementById('liveVal');
+    const productGrid    = document.getElementById('productGrid');
+    const loader         = document.getElementById('loader');
+    const errorBox       = document.getElementById('errorBox');
+    const errorMsg       = document.getElementById('errorMsg');
+    const resultsCount   = document.getElementById('resultsCount');
+
+    const categoryEmoji = {
+        'Laptops':     '💻',
+        'Phones':      '📱',
+        'Accessories': '🎧',
+        'Monitors':    '🖥️',
+        'Classified':  '🔒',
+    };
 
     // ── Initial load ──────────────────────────────────────────────────────────
-    runSearch(genreSelect.value);
+    runSearch(categorySelect.value);
 
     // ── Payload chip click-to-copy & auto-run ─────────────────────────────────
     document.querySelectorAll('.payload-chip').forEach(chip => {
         chip.addEventListener('click', () => {
             const payload = chip.dataset.payload;
 
-            // 1. Fill the attack input & update live query
             customInput.value = payload;
             updateLiveQuery(payload);
-
-            // 2. Run the search immediately
             runSearch(payload);
 
-            // 3. Copy to clipboard
             navigator.clipboard.writeText(payload).catch(() => {
-                // Fallback for older browsers
                 const tmp = document.createElement('textarea');
                 tmp.value = payload;
                 document.body.appendChild(tmp);
@@ -37,7 +41,6 @@
                 document.body.removeChild(tmp);
             });
 
-            // 4. Flash green "copied" state on the chip
             chip.classList.add('copied');
             const copyIcon = chip.querySelector('.chip-copy');
             if (copyIcon) {
@@ -54,26 +57,23 @@
     });
 
     // ── Event listeners ───────────────────────────────────────────────────────
-    genreSelect.addEventListener('change', () => {
+    categorySelect.addEventListener('change', () => {
         customInput.value = '';
-        updateLiveQuery(genreSelect.value);
-        runSearch(genreSelect.value);
+        updateLiveQuery(categorySelect.value);
+        runSearch(categorySelect.value);
     });
 
     customInput.addEventListener('input', () => {
         const v = customInput.value;
-        updateLiveQuery(v || genreSelect.value);
+        updateLiveQuery(v || categorySelect.value);
     });
 
     searchBtn.addEventListener('click', triggerSearch);
-
-    customInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') triggerSearch();
-    });
+    customInput.addEventListener('keydown', e => { if (e.key === 'Enter') triggerSearch(); });
 
     // ── Helpers ───────────────────────────────────────────────────────────────
     function triggerSearch() {
-        const term = customInput.value.trim() || genreSelect.value;
+        const term = customInput.value.trim() || categorySelect.value;
         updateLiveQuery(term);
         runSearch(term);
     }
@@ -82,15 +82,19 @@
         liveVal.textContent = value;
     }
 
+    function setCount(n) {
+        resultsCount.textContent = n === null ? '—' : `${n} result${n !== 1 ? 's' : ''}`;
+    }
+
     // ── Core fetch ────────────────────────────────────────────────────────────
-    async function runSearch(genre) {
+    async function runSearch(category) {
         showLoader(true);
         clearResults();
         hideError();
+        setCount(null);
 
         try {
-            // The genre string is NOT sanitised — intentional SQLi vulnerability
-            const res  = await fetch(`/api/books?genre=${encodeURIComponent(genre)}`);
+            const res  = await fetch(`/api/products?category=${encodeURIComponent(category)}`);
             const data = await res.json();
 
             showLoader(false);
@@ -100,47 +104,54 @@
                 return;
             }
 
+            setCount(data.length);
+
             if (!data.length) {
-                bookGrid.innerHTML = '<p class="subtitle" style="grid-column:1/-1;text-align:center;padding:2rem 0">No books found for that query.</p>';
+                productGrid.innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;padding:4rem 0;">
+                        <div style="font-size:2.5rem;margin-bottom:0.75rem;">🔍</div>
+                        <p style="font-size:0.95rem;color:var(--muted);font-weight:600;">No products found for that query.</p>
+                    </div>`;
                 return;
             }
 
-            renderBooks(data);
+            renderProducts(data);
         } catch (err) {
             showLoader(false);
             displayError('Network error — could not reach the server.');
-            console.error('[StoryShelf]', err);
+            console.error('[CyberMart]', err);
         }
     }
 
     // ── Renderers ─────────────────────────────────────────────────────────────
-    function renderBooks(books) {
-        bookGrid.innerHTML = '';
+    function renderProducts(products) {
+        productGrid.innerHTML = '';
 
-        books.forEach(book => {
-            const isRestricted = book.genre === 'Restricted';
-            const card = document.createElement('article');
-            card.className = `book-card${isRestricted ? ' restricted' : ''}`;
+        products.forEach(product => {
+            const isClassified = product.category === 'Classified';
+            const emoji = categoryEmoji[product.category] ?? '📦';
+            const card  = document.createElement('article');
+            card.className = `product-card${isClassified ? ' classified' : ''}`;
 
             card.innerHTML = `
-                <div class="book-spine"></div>
-                <div class="book-id">Book #${book.id}</div>
-                <h3 class="book-title">${safe(book.title)}</h3>
-                <div class="book-author">by ${safe(book.author)}</div>
-                <div class="book-footer">
-                    <span class="book-price">${book.price > 0 ? `$${book.price.toFixed(2)}` : 'N/A'}</span>
-                    <span class="book-genre">${safe(book.genre)}</span>
+                <div class="product-id">ID #${String(product.id).padStart(3, '0')}</div>
+                <div class="product-icon">${emoji}</div>
+                <h3 class="product-name">${safe(product.name)}</h3>
+                <div class="product-brand">${safe(product.brand)}</div>
+                <div class="product-footer">
+                    <span class="product-price">${product.price > 0 ? `$${product.price.toFixed(2)}` : 'CLASSIFIED'}</span>
+                    <span class="product-category">${safe(product.category)}</span>
                 </div>
-                <div class="book-stock">Stock: ${book.stock} unit${book.stock !== 1 ? 's' : ''}</div>
+                <div class="product-stock">Stock: ${product.stock} unit${product.stock !== 1 ? 's' : ''}</div>
             `;
 
-            bookGrid.appendChild(card);
+            productGrid.appendChild(card);
         });
     }
 
     // ── UI state helpers ──────────────────────────────────────────────────────
     function showLoader(show)  { loader.classList.toggle('hidden', !show); }
-    function clearResults()    { bookGrid.innerHTML = ''; }
+    function clearResults()    { productGrid.innerHTML = ''; }
     function hideError()       { errorBox.classList.add('hidden'); }
 
     function displayError(message) {
@@ -148,7 +159,6 @@
         errorBox.classList.remove('hidden');
     }
 
-    // Minimal XSS guard (we're demoing SQLi, not stored XSS)
     function safe(str) {
         if (str == null) return '';
         return String(str)

@@ -3,53 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StoryShelf – Library Search Lab</title>
-    <meta name="description" content="A deliberately vulnerable library catalogue demo built to teach SQL Injection.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <title>CyberMart – SQL Injection Lab</title>
+    <meta name="description" content="A deliberately vulnerable electronics store demo built to teach SQL Injection.">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ── Header ── -->
+    <!-- ── Hero Header ── -->
     <header>
-        <div class="container header-inner">
-            <div class="brand">
-                <span class="brand-icon">🏛️</span>
-                <h1>StoryShelf <span class="badge">Library Lab</span></h1>
+        <div class="header-inner">
+            <div class="header-top">
+                <div class="brand">
+                    <div class="brand-icon-wrap">⚡</div>
+                    <div class="brand-text">
+                        <h1>CyberMart <span class="badge">SQLi Lab</span></h1>
+                        <p>Electronics catalogue with an intentionally vulnerable search filter</p>
+                    </div>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-pill"><span class="stat-dot"></span> Server Live</div>
+                    <div class="stat-pill">🛒 15 Products</div>
+                    <div class="stat-pill">🔓 Vuln: SQLi</div>
+                </div>
             </div>
-            <p class="tagline">A vintage catalogue search with an intentionally unsafe SQL filter.</p>
         </div>
     </header>
 
-    <main class="container">
-
-        <!-- ── Info Banner ── -->
-        <div class="info-banner">
-            <span class="info-icon">💡</span>
-            <span>This catalogue search is <strong>deliberately unsafe</strong>. Use a payload like <code>' OR '1'='1</code> to reveal archive entries that are normally hidden.</span>
+    <!-- ── Alert Strip ── -->
+    <div class="alert-strip">
+        <div class="alert-inner">
+            <span class="alert-icon">⚠️</span>
+            <span>This search is <strong>deliberately unsafe</strong> — user input is injected raw into SQL. Try <code>' OR '1'='1</code> to expose hidden records.</span>
         </div>
+    </div>
 
-        <!-- ── Search Panel ── -->
-        <section class="search-panel glass-card">
-            <h2>Explore by Genre</h2>
-            <p class="subtitle">Choose a genre or enter a custom query payload to inspect the SQL search.</p>
+    <!-- ── Two-Column Layout ── -->
+    <div class="page-body">
 
-            <div class="controls">
-                <div class="control-group">
-                    <label for="genreSelect">Quick Genre</label>
-                    <select id="genreSelect" class="input-field">
-                        <option value="Mystery">Mystery</option>
-                        <option value="Fantasy">Fantasy</option>
-                        <option value="Biography">Biography</option>
-                        <option value="History">History</option>
-                    </select>
-                </div>
+        <!-- ── Sidebar ── -->
+        <aside class="sidebar">
 
-                <div class="divider-v"></div>
+            <!-- Search Controls -->
+            <div class="sidebar-card">
+                <div class="sidebar-card-title">Search Controls</div>
 
-                <div class="control-group flex-1">
-                    <label for="customInput">Custom / Attack Input</label>
+                <label class="field-label" for="categorySelect">Category</label>
+                <select id="categorySelect" class="input-field">
+                    <option value="Laptops">💻 Laptops</option>
+                    <option value="Phones">📱 Phones</option>
+                    <option value="Accessories">🎧 Accessories</option>
+                    <option value="Monitors">🖥️ Monitors</option>
+                </select>
+
+                <div class="field-gap">
+                    <label class="field-label" for="customInput">Injection Payload</label>
                     <input
                         type="text"
                         id="customInput"
@@ -61,38 +68,31 @@
                 </div>
 
                 <button id="searchBtn" class="search-btn">
-                    <span>Search</span>
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    Run Query
                 </button>
             </div>
 
-            <!-- ── Payload Chips ── -->
-            <div class="payloads-section">
-                <div class="payloads-label">
-                    <span>🎯 Try these injection payloads</span>
-                    <span class="payloads-hint">Click to load &amp; copy</span>
-                </div>
+            <!-- Payload Chips -->
+            <div class="sidebar-card">
+                <div class="sidebar-card-title">Attack Payloads</div>
                 <div class="payload-chips">
-                    <button class="payload-chip" data-payload="' OR '1'='1">
+                    <button class="payload-chip" data-payload="' OR '1'='1" id="chip1">
                         <span class="chip-tag">1</span>
-                        <span class="chip-code">' OR '1'='1</span>
-                        <span class="chip-desc">Dump all records</span>
+                        <span class="chip-inner">
+                            <span class="chip-code">' OR '1'='1</span>
+                            <span class="chip-desc">Dump all records</span>
+                        </span>
                         <span class="chip-copy" title="Copy">
                             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                         </span>
                     </button>
-                    <button class="payload-chip" data-payload="' OR genre='Restricted">
+                    <button class="payload-chip" data-payload="' OR category='Classified" id="chip2">
                         <span class="chip-tag">2</span>
-                        <span class="chip-code">' OR genre='Restricted</span>
-                        <span class="chip-desc">Target hidden books</span>
-                        <span class="chip-copy" title="Copy">
-                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <span class="chip-inner">
+                            <span class="chip-code">' OR category='Classified</span>
+                            <span class="chip-desc">Leak classified items</span>
                         </span>
-                    </button>
-                    <button class="payload-chip" data-payload="' OR stock < 10 AND '1'='1">
-                        <span class="chip-tag">3</span>
-                        <span class="chip-code">' OR stock &lt; 10 AND '1'='1</span>
-                        <span class="chip-desc">Leak low-stock &amp; hidden</span>
                         <span class="chip-copy" title="Copy">
                             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                         </span>
@@ -102,33 +102,38 @@
 
             <!-- SQL Visualiser -->
             <div class="sql-box" id="sqlBox">
-                <div class="sql-box-label">Live SQL Query</div>
-                <pre class="sql-code"><span class="kw">SELECT</span> * <span class="kw">FROM</span> books <span class="kw">WHERE</span> genre = '<span class="val" id="liveVal">Technology</span>'</pre>
+                <div class="sql-box-label">
+                    <span class="sql-dot"></span>
+                    Live SQL Query
+                </div>
+                <pre class="sql-code"><span class="kw">SELECT</span> * <span class="kw">FROM</span> products <span class="kw">WHERE</span> category = '<span class="val" id="liveVal">Laptops</span>'</pre>
             </div>
-        </section>
 
-        <!-- ── Results ── -->
-        <section class="results-section">
+        </aside>
+
+        <!-- ── Main Results ── -->
+        <main class="main-area">
+            <div class="results-header">
+                <div class="results-title">Products</div>
+                <div class="results-count" id="resultsCount">—</div>
+            </div>
+
             <div id="loader" class="loader hidden"></div>
 
             <div id="errorBox" class="error-box hidden">
-                <div class="error-header">
-                    <span>⚠️ SQL Error Detected</span>
-                </div>
+                <div class="error-header">⚠️ SQL Error Detected</div>
                 <p id="errorMsg"></p>
             </div>
 
-            <div id="bookGrid" class="book-grid">
+            <div id="productGrid" class="product-grid">
                 <!-- Cards injected by app.js -->
             </div>
-        </section>
+        </main>
 
-    </main>
+    </div>
 
     <footer>
-        <div class="container">
-            <p>StoryShelf &mdash; SQL Injection Educational Demo &mdash; For Learning Purposes Only</p>
-        </div>
+        <p>CyberMart &mdash; SQL Injection Educational Demo &mdash; For Academic Purposes Only</p>
     </footer>
 
     <script src="app.js"></script>

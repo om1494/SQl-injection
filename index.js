@@ -6,34 +6,32 @@ const app = express();
 const port = 3000;
 
 // ─── In-Memory Database Setup ────────────────────────────────────────────────
-alasql('CREATE TABLE books (id INT, title STRING, author STRING, genre STRING, price DECIMAL, stock INT)');
+alasql('CREATE TABLE products (id INT, name STRING, brand STRING, category STRING, price DECIMAL, stock INT)');
 
-// Sample book catalogue — Technology
-alasql("INSERT INTO books VALUES (1,  'The Pragmatic Programmer',        'David Thomas',          'Technology', 45.99, 12)");
-alasql("INSERT INTO books VALUES (2,  'Clean Code',                      'Robert C. Martin',      'Technology', 38.50,  8)");
-alasql("INSERT INTO books VALUES (3,  'You Don\\'t Know JS',             'Kyle Simpson',          'Technology', 29.99, 18)");
-alasql("INSERT INTO books VALUES (4,  'Design Patterns',                 'Gang of Four',          'Technology', 54.00,  5)");
+// Laptops
+alasql("INSERT INTO products VALUES (1,  'ProBook X360',            'HP',       'Laptops',    899.99, 14)");
+alasql("INSERT INTO products VALUES (2,  'MacBook Air M3',          'Apple',    'Laptops',   1199.00,  6)");
+alasql("INSERT INTO products VALUES (3,  'ThinkPad X1 Carbon',      'Lenovo',   'Laptops',   1099.50, 10)");
+alasql("INSERT INTO products VALUES (4,  'Surface Pro 9',           'Microsoft','Laptops',    999.99,  8)");
 
-// Biography
-alasql("INSERT INTO books VALUES (5,  'Becoming',                                'Michelle Obama',         'Biography',  17.50, 11)");
-alasql("INSERT INTO books VALUES (6,  'Steve Jobs',                              'Walter Isaacson',        'Biography',  19.99,  5)");
-alasql("INSERT INTO books VALUES (7,  'The Diary of a Young Girl',               'Anne Frank',             'Biography',  11.99, 13)");
+// Phones
+alasql("INSERT INTO products VALUES (5,  'Galaxy S24 Ultra',        'Samsung',  'Phones',     1299.99,  9)");
+alasql("INSERT INTO products VALUES (6,  'iPhone 15 Pro',           'Apple',    'Phones',     1199.00, 15)");
+alasql("INSERT INTO products VALUES (7,  'Pixel 8 Pro',             'Google',   'Phones',      899.00, 12)");
+alasql("INSERT INTO products VALUES (8,  'OnePlus 12',              'OnePlus',  'Phones',      699.00, 20)");
 
-// History
-alasql("INSERT INTO books VALUES (8,  'Dune',                            'Frank Herbert',         'Fiction',    17.50, 30)");
-alasql("INSERT INTO books VALUES (9,  'The Great Gatsby',                'F. Scott Fitzgerald',   'Fiction',    13.99, 20)");
-alasql("INSERT INTO books VALUES (10, '1984',                            'George Orwell',         'Fiction',    14.50, 35)");
-alasql("INSERT INTO books VALUES (11, 'The Hitchhiker\\'s Guide to the Galaxy', 'Douglas Adams', 'Fiction',    12.99, 17)");
+// Accessories
+alasql("INSERT INTO products VALUES (9,  'MX Master 3S Mouse',      'Logitech', 'Accessories',  99.99, 40)");
+alasql("INSERT INTO products VALUES (10, 'WH-1000XM5 Headphones',   'Sony',     'Accessories', 349.99, 22)");
+alasql("INSERT INTO products VALUES (11, 'QuadCast USB Microphone',  'HyperX',  'Accessories', 129.99, 18)");
 
-// Modern Fiction
-alasql("INSERT INTO books VALUES (12, 'The Great Gatsby',                        'F. Scott Fitzgerald',    'Fiction',    13.99, 20)");
-alasql("INSERT INTO books VALUES (13, 'Dune',                                    'Frank Herbert',          'Fiction',    17.50, 30)");
-alasql("INSERT INTO books VALUES (14, '1984',                                    'George Orwell',          'Fiction',    14.50, 35)");
-alasql("INSERT INTO books VALUES (15, 'The Hitchhiker\'s Guide to the Galaxy',  'Douglas Adams',          'Fiction',    12.99, 17)");
+// Monitors
+alasql("INSERT INTO products VALUES (12, 'Odyssey G7 32\" 4K',      'Samsung',  'Monitors',    649.99,  7)");
+alasql("INSERT INTO products VALUES (13, 'UltraSharp U2723D',        'Dell',     'Monitors',    599.00,  5)");
 
-// Hidden / Restricted
-alasql("INSERT INTO books VALUES (16, '[ARCHIVE] Curator\'s Log',               'Library Archivist',      'Restricted', 0.00,  1)");
-alasql("INSERT INTO books VALUES (17, '[ARCHIVE] Vault Access Ledger',             'Head Librarian',         'Restricted', 0.00,  1)");
+// Hidden / Classified
+alasql("INSERT INTO products VALUES (14, '[CLASSIFIED] Admin Panel Credentials', 'Internal', 'Classified', 0.00, 1)");
+alasql("INSERT INTO products VALUES (15, '[CLASSIFIED] Vendor API Keys',         'Internal', 'Classified', 0.00, 1)");
 
 // ─── Static Files ─────────────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, 'public')));
@@ -41,11 +39,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ─── Vulnerable Search Endpoint ───────────────────────────────────────────────
 // WARNING: User input is concatenated directly into the SQL string.
 // This is intentionally insecure for demonstration purposes.
-app.get('/api/books', (req, res) => {
-    const genre = req.query.genre || '';
+app.get('/api/products', (req, res) => {
+    const category = req.query.category || '';
 
     //  VULNERABLE: no input sanitisation, no parameterised query
-    const query = `SELECT * FROM books WHERE genre = '${genre}'`;
+    const query = `SELECT * FROM products WHERE category = '${category}'`;
 
     try {
         console.log(`[SQL Executed] ${query}`);
@@ -58,6 +56,6 @@ app.get('/api/books', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`StoryShelf running → http://localhost:${port}`);
-    console.log(`Challenge: retrieve the Restricted record using SQL Injection!`);
+    console.log(`CyberMart running → http://localhost:${port}`);
+    console.log(`Challenge: retrieve the Classified records using SQL Injection!`);
 });
